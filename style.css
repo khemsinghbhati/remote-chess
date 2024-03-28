@@ -1,0 +1,32 @@
+#msgBoxContainer{
+    width: 60vh;
+    max-height:30vh;
+    overflow-y: scroll;
+    background-color:  lightpink;
+
+}
+#msgBox{
+    width: 50vh;
+    color: black;
+    font-weight: bolder;
+}
+#pagee{
+    
+    background-image: url("img/connectPaper.jpg");
+    height: 100vh;
+    overflow:hidden;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: black;
+}
+#myBoard{
+    width: 80vh;
+    position: relative;
+    margin-right: 15%;
+    float:left;
+    padding-left:1%;
+}
+.gameoverpara{
+    color:white;
+    font-size: xx-large;
+}
