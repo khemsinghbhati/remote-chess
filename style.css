@@ -25,6 +25,21 @@
     margin-right: 15%;
     float:left;
     padding-left:1%;
+    margin-left:2vh;
+}
+#resignButton{   
+
+ margin-top:1vh;
+ background-color: transparent;
+ color : red;
+ font-size:3vh;
+}
+#drawButton{
+    margin-top: 1vh;
+    margin-left: 4vh;
+    background-color: transparent;
+    color:green;    
+    font-size:3vh;
 }
 .gameoverpara{
     color:white;

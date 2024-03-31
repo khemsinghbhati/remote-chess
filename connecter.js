@@ -1,4 +1,4 @@
-var game = new Chess()
+var game = new Chess();
 function makeid(length) {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -10,6 +10,7 @@ function makeid(length) {
   }
   return result;
 }
+
 var peer = new Peer(makeid(5));
 var Conn;
 let me;
@@ -41,7 +42,10 @@ function startConnect(){
        handleRec();
 
   });
-
+// reconnect
+ peer.on('disconnected',() => {
+  peer.reconnect();
+ });
 
 function gameRoomLaunch(){
   
@@ -51,7 +55,9 @@ function gameRoomLaunch(){
   yourID.append(me);
   var oppID=document.getElementById("oppID");
   oppID.append(him);
-  cont.innerHTML += "<p style = 'color: red; font-size: 200% '> Chat here  </p> <input type='text' id='msg'>  <button id='sendButton'onclick='sendMsg()'> send </button> <div id='msgBoxContainer'><p id='msgBox'> </p> </div>";
+  var resignButtonHtml = "<button id='resignButton' onclick='resign()'> Resign🏳️ </button>";
+  var drawButtonHtml = "<button id='drawButton'> Draw🤝 </button>";
+  cont.innerHTML += resignButtonHtml + drawButtonHtml+ "<p style = 'color: yellow; font-size: 200% '> Chat here  </p> <input type='text' id='msg'>  <button id='sendButton'onclick='sendMsg()'> send </button> <div id='msgBoxContainer'><p id='msgBox'> </p> </div>";
   launchBoard();
   document.getElementById("msg").addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
@@ -60,7 +66,12 @@ function gameRoomLaunch(){
     }
   });
 }
-
+function resign(){
+  //alert();
+  let winner = (myCol == 'white') ? 'b' : 'white';
+  Conn.send('r');
+  Game_end(winner);
+}
 var board;
 function launchBoard(){
  
@@ -132,8 +143,10 @@ function sendMsg(){
   if(msg.value != ""){
   Conn.send('c'+msg.value);
   addMsg("You: " + msg.value);
-  msg.value="";}
+  msg.value="";
 }
+}
+
 function handleRec(){
  Conn.on('open',function(){
    Conn.on('data', function(data) {
@@ -141,6 +154,10 @@ function handleRec(){
     if(data.charAt(0) =='c'){
     data = data.slice(1); 
     addMsg("Opponent : " + data); 
+   }
+   else if(data.charAt(0) == 'r'){
+    let winner = myCol;
+    Game_end(winner);
    }
    else {
      data = data.slice(1);
@@ -198,3 +215,4 @@ function Game_end(winner){
     cont.innerHTML += "<p class='gameoverpara'> GAMEOVER, YOU LOSE </p>";
  
 }
+/* m = move , c= chat , r= resign*/
