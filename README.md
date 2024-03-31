@@ -1,3 +1,4 @@
+Try it now : remotechess.netlify.app
 # chessboard.js
 
 chessboard.js is a JavaScript chessboard component. It depends on [jQuery].
