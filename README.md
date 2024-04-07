@@ -1,2 +1,2 @@
 # Libraries used : Chessboardjs , chessjs 
-# Try it here : [remoteChess](remotechess.netlify.app)
+# Try it here : [remoteChess](https://remotechess.netlify.app/)
