@@ -16,6 +16,8 @@ var Conn;
 let me;
 let him;
 let myCol='white';
+var lastSquareClicked;
+var lastSquareHovered;
 //let toSend=false;
 peer.on('open', function(id) {
     //alert("hello")
@@ -50,7 +52,7 @@ function startConnect(){
 function gameRoomLaunch(){
   
   var cont=document.getElementById("pagee");
-  cont.innerHTML="  <p style = 'color: skyblue'>HELLO,  welcome to game room </p><p style='color:orange ' id='yourID'>yourID :   </p><p style='color:orange' id='oppID' > opponentID: </p><div id='myBoard'></div>";
+  cont.innerHTML="  <p style = 'color: skyblue'>HELLO,  welcome to game room </p><p style='color:orange ' id='yourID'>yourID :   </p><p style='color:orange' id='oppID' > opponentID: </p><div id='myBoard' onClick='squareClicked()'></div>";
   var yourID=document.getElementById("yourID");
   yourID.append(me);
   var oppID=document.getElementById("oppID");
@@ -80,14 +82,15 @@ function launchBoard(){
     position: 'start',
     onDragStart: onDragStart,
     onDrop: onDrop,
-    onSnapEnd: onSnapEnd,
+    onMouseoverSquare: onMouseoverSquare,
+    onSnapEnd : onSnapEnd,
     showNotation : false,
     orientation : myCol
   }
   board = Chessboard('myBoard',config);
   
 }
-
+//drag to move 
 function onDragStart (source, piece, position, orientation) {
   // do not pick up pieces if the game is over
   if (game.game_over()) return false;
@@ -96,29 +99,48 @@ function onDragStart (source, piece, position, orientation) {
          return false;
   if(board.orientation() == 'black' && (piece.search(/^w/) !== -1 || game.turn() === 'w'))
          return false;
-
+  lastSquareClicked=source;      
 }
 
 function onDrop (source, target) {
-  // see if the move is legal
-  var move = game.move({
-    from: source,
-    to: target,
-    promotion: 'q' 
-  })
-
-  // illegal move
-  if (move === null) return 'snapback'
-  // send move if legal
-  let moveS=source+target;
-  Conn.send('m'+ moveS);
-  
+  makeMove(source,target);
 }
+function makeMove(source,target){
+ // see if the move is legal
+ var move = game.move({
+  from: source,
+  to: target,
+  promotion: 'q' 
+})
+// illegal move
+if (move === null) return 'snapback'
+// send move if legal
+let moveS=source+target;
+Conn.send('m'+ moveS);
 
-// update the board position after the piece snap
-// for castling, en passant, pawn promotion
-function onSnapEnd () {
+GameOverCheck();
+}
+ //update board , because in moves like castling chessboardjs needs support from chess js for proper update
+ 
+function onSnapEnd(){
+ board.position(game.fen());
+}
+// end of drag to move 
+
+//click to move
+
+function onMouseoverSquare (square, piece) {
+  lastSquareHovered=square;
+}
+function squareClicked(){
+ let snapped = makeMove(lastSquareClicked,lastSquareHovered);
+ lastSquareClicked=lastSquareHovered;
+ //update board
+ if(snapped !== 'snapback')
   board.position(game.fen());
+}
+//end of click to move
+function GameOverCheck(){
   if(game.game_over()){ 
     let winner;
      if(game.in_checkmate() == true){
@@ -136,7 +158,6 @@ function onSnapEnd () {
      Game_end(winner);
    }
 }
-
 
 function sendMsg(){
   var msg=document.getElementById("msg");
@@ -169,22 +190,7 @@ function handleRec(){
       promotion: 'q' 
     })
        board.position(game.fen());
-       if(game.game_over()){ 
-        let winner;
-         if(game.in_checkmate() == true){
-            if(game.turn() == 'b')
-             {
-                  winner='white';
-             }
-             else {
-              winner='b';
-             }
-         }
-         else{
-          winner='d';
-         }
-         Game_end(winner);
-       }
+      GameOverCheck();
    }
    });
  }); 
@@ -205,7 +211,7 @@ function Game_end(winner,byResign=false){
     position: board.position(),
     onDragStart: onDragStart,
     onDrop: onDrop,
-    onSnapEnd: onSnapEnd,
+    onSnapEnd : onSnapEnd,
     showNotation : false,
     orientation : myCol
   }
