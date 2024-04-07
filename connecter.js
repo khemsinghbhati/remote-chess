@@ -57,7 +57,7 @@ function gameRoomLaunch(){
   oppID.append(him);
   var resignButtonHtml = "<button id='resignButton' onclick='resign()'> Resign🏳️ </button>";
   var drawButtonHtml = "<button id='drawButton'> Draw🤝 </button>";
-  cont.innerHTML += resignButtonHtml + drawButtonHtml+ "<p style = 'color: yellow; font-size: 200% '> Chat here  </p> <input type='text' id='msg'>  <button id='sendButton'onclick='sendMsg()'> send </button> <div id='msgBoxContainer'><p id='msgBox'> </p> </div>";
+  cont.innerHTML += resignButtonHtml + drawButtonHtml+ "<div id='msgContainerDiv'><p style = 'color: yellow; font-size: 200% '> Chat here  </p> <input type='text' id='msg'>  <button id='sendButton'onclick='sendMsg()'> send </button> <div id='msgBoxContainer'><p id='msgBox'> </p> </div> </div>";
   launchBoard();
   document.getElementById("msg").addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
@@ -146,7 +146,9 @@ function sendMsg(){
   msg.value="";
 }
 }
-
+//this function is required because Conn obj is defined only after the connection gets established.
+//also it reduces lines of code, we are avoiding writing it above twice !. moreover Conn data can only be recieved after connecting
+// so it's just better to make this peice of code come into picture when it is required.  
 function handleRec(){
  Conn.on('open',function(){
    Conn.on('data', function(data) {
@@ -157,7 +159,7 @@ function handleRec(){
    }
    else if(data.charAt(0) == 'r'){
     let winner = myCol;
-    Game_end(winner);
+    Game_end(winner,true);
    }
    else {
      data = data.slice(1);
@@ -192,9 +194,10 @@ function addMsg(msg){
   var cont=document.getElementById("msgBox");
   cont.innerHTML=msg+"<br><br>"+cont.innerHTML;
 }
-function Game_end(winner){
+function Game_end(winner,byResign=false){
   
   var cont=document.getElementById("pagee");
+  var msgContainerDiv = document.getElementById("msgContainerDiv").innerHTML;
   cont.innerHTML="";
   cont.innerHTML += "<div id='myBoard'></div>";
   var config={
@@ -213,6 +216,10 @@ function Game_end(winner){
     cont.innerHTML += "<p class='gameoverpara'> GAMEOVER, IT'S A DRAW </p>";
    else
     cont.innerHTML += "<p class='gameoverpara'> GAMEOVER, YOU LOSE </p>";
- 
+   
+    if(byResign == true) 
+     cont.innerHTML += "<p class='gameoverpara' >Opponent resigned </p>";
+    cont.innerHTML += msgContainerDiv//"<p style = 'color: yellow; font-size: 200% '> Chat here  </p> <input type='text' id='msg'>  <button id='sendButton'onclick='sendMsg()'> send </button> <div id='msgBoxContainer'><p id='msgBox'> </p> </div>";
+
 }
 /* m = move , c= chat , r= resign*/
