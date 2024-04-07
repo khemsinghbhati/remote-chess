@@ -113,7 +113,11 @@ function makeMove(source,target){
   promotion: 'q' 
 })
 // illegal move
-if (move === null) return 'snapback'
+if (move === null) {
+  if(source !== target)
+  lastSquareClicked="";
+  return 'snapback';
+}
 // send move if legal
 let moveS=source+target;
 Conn.send('m'+ moveS);
