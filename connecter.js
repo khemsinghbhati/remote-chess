@@ -121,13 +121,14 @@ if (move === null) {
 // send move if legal
 let moveS=source+target;
 Conn.send('m'+ moveS);
-
-GameOverCheck();
+playMoveSound();
 }
  //update board , because in moves like castling chessboardjs needs support from chess js for proper update
  
 function onSnapEnd(){
+  //first updating the position then check game over , order matters otherwise gameovercheck might set a game over board and then board.position again set it .. causing irregular display
  board.position(game.fen());
+ GameOverCheck();
 }
 // end of drag to move 
 
@@ -140,12 +141,16 @@ function squareClicked(){
  let snapped = makeMove(lastSquareClicked,lastSquareHovered);
  lastSquareClicked=lastSquareHovered;
  //update board
- if(snapped !== 'snapback')
+ if(snapped !== 'snapback'){
+  //first update the position then check game over , order matters otherwise gameovercheck might set a game over board and then board.position again set it .. causing irregular display
   board.position(game.fen());
+  GameOverCheck(); 
+}
 }
 //end of click to move
 function GameOverCheck(){
   if(game.game_over()){ 
+    
     let winner;
      if(game.in_checkmate() == true){
         if(game.turn() == 'b')
@@ -181,12 +186,14 @@ function handleRec(){
     if(data.charAt(0) =='c'){
     data = data.slice(1); 
     addMsg("Opponent : " + data); 
+    playChatMsgSound();
    }
    else if(data.charAt(0) == 'r'){
     let winner = myCol;
     Game_end(winner,true);
    }
    else {
+     playMoveSound();
      data = data.slice(1);
     game.move({
       from: data.charAt(0)+data.charAt(1),
@@ -194,7 +201,7 @@ function handleRec(){
       promotion: 'q' 
     })
        board.position(game.fen());
-      GameOverCheck();
+       GameOverCheck();
    }
    });
  }); 
@@ -205,7 +212,7 @@ function addMsg(msg){
   cont.innerHTML=msg+"<br><br>"+cont.innerHTML;
 }
 function Game_end(winner,byResign=false){
-  
+  playGameOverSound();
   var cont=document.getElementById("pagee");
   var msgContainerDiv = document.getElementById("msgContainerDiv").innerHTML;
   cont.innerHTML="";
@@ -217,11 +224,11 @@ function Game_end(winner,byResign=false){
     onDrop: onDrop,
     onSnapEnd : onSnapEnd,
     showNotation : false,
-    orientation : myCol
+    orientation : board.orientation()
   }
   board = Chessboard('myBoard',config);
    if(winner == board.orientation())
-    cont.innerHTML += "<p class='gameoverpara' > GAMEOVER, YOU WON </p>";
+    cont.innerHTML += "<p class='gameoverpara'> GAMEOVER, YOU WON </p>";
    else if(winner == 'd')
     cont.innerHTML += "<p class='gameoverpara'> GAMEOVER, IT'S A DRAW </p>";
    else
@@ -232,4 +239,18 @@ function Game_end(winner,byResign=false){
     cont.innerHTML += msgContainerDiv//"<p style = 'color: yellow; font-size: 200% '> Chat here  </p> <input type='text' id='msg'>  <button id='sendButton'onclick='sendMsg()'> send </button> <div id='msgBoxContainer'><p id='msgBox'> </p> </div>";
 
 }
+function playMoveSound() {
+  var audio = new Audio('https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/move-self.mp3');
+  audio.play();
+}
+function playGameOverSound(){
+  var audio = new Audio('https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/game-end.mp3');
+  audio.play();
+}
+function playChatMsgSound(){
+  var audio = new Audio('https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/notify.mp3');
+  audio.play();
+}
+
+// messages format
 /* m = move , c= chat , r= resign*/
