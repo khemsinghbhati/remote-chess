@@ -1,4 +1,5 @@
 var game = new Chess();
+
 function makeid(length) {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -18,6 +19,7 @@ let him;
 let myCol='white';
 var lastSquareClicked;
 var lastSquareHovered;
+
 //let toSend=false;
 peer.on('open', function(id) {
     //alert("hello")
@@ -74,7 +76,7 @@ function resign(){
   Conn.send('r');
   Game_end(winner);
 }
-var board;
+var Board;
 function launchBoard(){
  
   var config={
@@ -87,7 +89,7 @@ function launchBoard(){
     showNotation : false,
     orientation : myCol
   }
-  board = Chessboard('myBoard',config);
+  Board = Chessboard('myBoard',config);
   
 }
 //drag to move 
@@ -95,9 +97,9 @@ function onDragStart (source, piece, position, orientation) {
   // do not pick up pieces if the game is over
   if (game.game_over()) return false;
   // only pick up pieces for the side to move and respective color
-  if(board.orientation() == 'white' && (piece.search(/^b/) !== -1 || game.turn() === 'b'))
+  if(Board.orientation() == 'white' && (piece.search(/^b/) !== -1 || game.turn() === 'b'))
          return false;
-  if(board.orientation() == 'black' && (piece.search(/^w/) !== -1 || game.turn() === 'w'))
+  if(Board.orientation() == 'black' && (piece.search(/^w/) !== -1 || game.turn() === 'w'))
          return false;
   lastSquareClicked=source;      
 }
@@ -122,12 +124,21 @@ if (move === null) {
 let moveS=source+target;
 Conn.send('m'+ moveS);
 playMoveSound();
+removecolorSquares();
+colorSquare(source);
+colorSquare(target);
+if(game.in_check()) {
+  let targetColor='b';
+  if(Board.orientation() == 'black')
+  targetColor='w';
+   colorKing(targetColor);
+ }
 }
  //update board , because in moves like castling chessboardjs needs support from chess js for proper update
  
 function onSnapEnd(){
   //first updating the position then check game over , order matters otherwise gameovercheck might set a game over board and then board.position again set it .. causing irregular display
- board.position(game.fen());
+ Board.position(game.fen());
  GameOverCheck();
 }
 // end of drag to move 
@@ -143,7 +154,7 @@ function squareClicked(){
  //update board
  if(snapped !== 'snapback'){
   //first update the position then check game over , order matters otherwise gameovercheck might set a game over board and then board.position again set it .. causing irregular display
-  board.position(game.fen());
+  Board.position(game.fen());
   GameOverCheck(); 
 }
 }
@@ -200,13 +211,23 @@ function handleRec(){
       to: data.charAt(2)+data.charAt(3),
       promotion: 'q' 
     })
-       board.position(game.fen());
+       Board.position(game.fen());
+       removecolorSquares();
+       colorSquare(data.charAt(0)+data.charAt(1));
+       colorSquare(data.charAt(2)+data.charAt(3));
+       if(game.in_check()) {
+        let targetColor='w';
+        if(Board.orientation() == 'black')
+        targetColor='b';
+         colorKing(targetColor);
+       }
        GameOverCheck();
    }
    });
  }); 
 
 }
+
 function addMsg(msg){
   var cont=document.getElementById("msgBox");
   cont.innerHTML=msg+"<br><br>"+cont.innerHTML;
@@ -219,15 +240,15 @@ function Game_end(winner,byResign=false){
   cont.innerHTML += "<div id='myBoard'></div>";
   var config={
     draggable: true,
-    position: board.position(),
+    position: Board.position(),
     onDragStart: onDragStart,
     onDrop: onDrop,
     onSnapEnd : onSnapEnd,
     showNotation : false,
-    orientation : board.orientation()
+    orientation : Board.orientation()
   }
-  board = Chessboard('myBoard',config);
-   if(winner == board.orientation())
+  Board = Chessboard('myBoard',config);
+   if(winner == Board.orientation())
     cont.innerHTML += "<p class='gameoverpara'> GAMEOVER, YOU WON </p>";
    else if(winner == 'd')
     cont.innerHTML += "<p class='gameoverpara'> GAMEOVER, IT'S A DRAW </p>";
@@ -252,5 +273,53 @@ function playChatMsgSound(){
   audio.play();
 }
 
+var whiteSquarecolor = '#1dbf9f'
+var blackSquarecolor = '#1dbf9f'
+var checkSquarecolor = '#b30727'
+function removecolorSquares () {
+  $('#myBoard .square-55d63').css('background', '')
+}
+
+function colorSquare (square,checkSquare=false) {
+  var $square = $('#myBoard .square-' + square)
+
+  var background = whiteSquarecolor
+  if ($square.hasClass('black-3c85d')) {
+    background = blackSquarecolor
+  }
+  //color king square red
+  if(checkSquare == true){
+    background = checkSquarecolor; 
+  }
+  $square.css('background', background)
+}
+// called when king is in check 
+function colorKing(targetColor){
+  var toSearch = 'k'.charCodeAt(0);
+  if(targetColor == 'w')
+      toSearch = 'K'.charCodeAt(0);
+  var fen = game.fen();  
+  var kingSquare = findKingSquare(fen,toSearch)
+  colorSquare(kingSquare,true);
+}
+// calculates king's square
+function findKingSquare(fen,toSearch){
+  var num = 0;
+for (let i = 0; i < fen.length; i++) {
+var ch = fen.charCodeAt(i);
+if(ch == toSearch) break;	
+    if(ch == '/'.charCodeAt(0)) continue;
+if(ch >= '1'.charCodeAt(0) && ch <= '8'.charCodeAt(0)) 
+  num += (ch - '0'.charCodeAt(0));
+else
+ num += 1;
+}
+var file = String.fromCharCode('a'.charCodeAt(0) + num % 8 );
+var rank = 8 - Math.floor(num / 8);
+ return (file+rank); 
+}
+
 // messages format
-/* m = move , c= chat , r= resign*/
+/* 
+m = move , c= chat , r= resign
+*/
