@@ -258,7 +258,13 @@ function Game_end(winner,byResign=false){
     if(byResign == true) 
      cont.innerHTML += "<p class='gameoverpara' >Opponent resigned </p>";
     cont.innerHTML += msgContainerDiv//"<p style = 'color: yellow; font-size: 200% '> Chat here  </p> <input type='text' id='msg'>  <button id='sendButton'onclick='sendMsg()'> send </button> <div id='msgBoxContainer'><p id='msgBox'> </p> </div>";
-
+    //press enter to send
+    document.getElementById("msg").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("sendButton").click();
+      }
+    });
 }
 function playMoveSound() {
   var audio = new Audio('https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/move-self.mp3');
