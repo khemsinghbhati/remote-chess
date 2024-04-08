@@ -1,3 +1,24 @@
+#queenButton{
+ background-color: white;
+ color : green;
+}
+#rookButton{
+    background-color: black;
+    color : green;
+}
+#knightButton{
+    background-color: black;
+    color : green;
+}
+#bishopButton{
+    background-color: black;
+    color : green;
+}
+#pawnPromotionOptions{
+    color: red;
+    position:relative;
+    
+}
 #msgBoxContainer{
     width: 60vh;
     max-height:30vh;
@@ -20,7 +41,7 @@
     background-color: black;
 }
 #myBoard{
-    width: 80vh;
+    width: 78vh;
     position: relative;
     margin-right: 15%;
     float:left;

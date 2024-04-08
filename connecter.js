@@ -44,9 +44,9 @@ function startConnect(){
  });
 
 function gameRoomLaunch(){
-  
+  var promotionOptionsHtml = " <div id='pawnPromotionOptions'> Pawn Promtion Choice : <button id='queenButton'  onClick='changePromotionChoiceToQueen()'> ♕ </button> <button id='rookButton' onClick='changePromotionChoiceToRook()'> ♖ </button> <button id='bishopButton'  onClick='changePromotionChoiceToBishop()'> ♗ </button> <button id='knightButton'  onClick='changePromotionChoiceToKnight()'> ♘ </button></div>";
   var cont=document.getElementById("pagee");
-  cont.innerHTML="  <p style = 'color: skyblue'>HELLO,  welcome to game room </p><p style='color:orange ' id='yourID'>yourID :   </p><p style='color:orange' id='oppID' > opponentID: </p><div id='myBoard' onClick='squareClicked()'></div>";
+  cont.innerHTML="  <p style = 'color: skyblue'>HELLO,  welcome to game room "+promotionOptionsHtml+" </p><p style='color:orange ' id='yourID'>yourID :   </p><p style='color:orange' id='oppID' > opponentID: </p><div id='myBoard' onClick='squareClicked()'></div>";
   var yourID=document.getElementById("yourID");
   yourID.append(me);
   var oppID=document.getElementById("oppID");
@@ -99,12 +99,45 @@ function onDragStart (source, piece, position, orientation) {
 function onDrop (source, target) {
   makeMove(source,target);
 }
+var promotionChoice='q';
+function changePromotionChoiceToQueen(){
+  document.getElementById("queenButton").style.backgroundColor = "white";
+  document.getElementById("rookButton").style.backgroundColor = "black";
+  document.getElementById("bishopButton").style.backgroundColor = "black";
+  document.getElementById("knightButton").style.backgroundColor = "black";
+  promotionChoice = 'q';
+}
+function changePromotionChoiceToRook(){
+  document.getElementById("rookButton").style.backgroundColor = "white";
+  document.getElementById("queenButton").style.backgroundColor = "black";
+  document.getElementById("bishopButton").style.backgroundColor = "black";
+  document.getElementById("knightButton").style.backgroundColor = "black";
+ promotionChoice = 'r';
+}
+function changePromotionChoiceToBishop(){
+  document.getElementById("bishopButton").style.backgroundColor = "white";
+  document.getElementById("rookButton").style.backgroundColor = "black";
+  document.getElementById("queenButton").style.backgroundColor = "black";
+  document.getElementById("knightButton").style.backgroundColor = "black";
+  promotionChoice = 'b';
+}
+function changePromotionChoiceToKnight(){
+  document.getElementById("knightButton").style.backgroundColor = "white";
+  document.getElementById("rookButton").style.backgroundColor = "black";
+  document.getElementById("bishopButton").style.backgroundColor = "black";
+  document.getElementById("queenButton").style.backgroundColor = "black";
+  promotionChoice = 'n';
+}
+
+function getPromotion(){
+  return promotionChoice;
+}
 function makeMove(source,target){
  // see if the move is legal
  var move = game.move({
   from: source,
   to: target,
-  promotion: 'q' 
+  promotion: getPromotion() 
 })
 // illegal move
 if (move === null) {
@@ -114,7 +147,7 @@ if (move === null) {
 }
 // send move if legal
 let moveS=source+target;
-Conn.send('m'+ moveS);
+Conn.send('m'+ moveS + getPromotion());
 playMoveSound();
 removecolorSquares();
 colorSquare(source);
@@ -147,6 +180,7 @@ function squareClicked(){
  if(snapped !== 'snapback'){
   //first update the position then check game over , order matters otherwise gameovercheck might set a game over board and then board.position again set it .. causing irregular display
   Board.position(game.fen());
+  lastSquareClicked = "";
   GameOverCheck(); 
 }
 }
@@ -197,10 +231,11 @@ function handleRec(){
    else {
      playMoveSound();
      data = data.slice(1);
+     var promotedTo = ''+ data.charAt(4);
     game.move({
       from: data.charAt(0)+data.charAt(1),
       to: data.charAt(2)+data.charAt(3),
-      promotion: 'q' 
+      promotion: promotedTo
     })
        Board.position(game.fen());
        removecolorSquares();

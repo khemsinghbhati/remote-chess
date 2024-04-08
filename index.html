@@ -23,7 +23,14 @@
         <button style = "background-color: skyblue;" id="LoginButton" onclick="makeID()">
             Login
         </button>
-        
+        <script>
+            document.getElementById("myID").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+            event.preventDefault();
+            document.getElementById("LoginButton").click();
+            }
+            });
+        </script>
     </p>
 
 
