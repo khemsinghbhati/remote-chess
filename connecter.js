@@ -1,18 +1,10 @@
 var game = new Chess();
 
-function makeid(length) {
-  let result = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charactersLength = characters.length;
-  let counter = 0;
-  while (counter < length) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    counter += 1;
-  }
-  return result;
+function makeid() {
+ return localStorage.getItem("myID");
 }
 
-var peer = new Peer(makeid(5));
+var peer = new Peer(makeid());
 var Conn;
 let me;
 let him;
@@ -160,8 +152,7 @@ function squareClicked(){
 }
 //end of click to move
 function GameOverCheck(){
-  if(game.game_over()){ 
-    
+  if(game.game_over()){   
     let winner;
      if(game.in_checkmate() == true){
         if(game.turn() == 'b')
