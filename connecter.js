@@ -34,7 +34,7 @@ function startConnect(){
        him=conn.peer;
        Conn = conn;
        myCol='black';
-       gameRoomLaunch();
+       gameRoomLaunch();  
        handleRec();
 
   });
@@ -305,8 +305,8 @@ function playChatMsgSound(){
   audio.play();
 }
 
-var whiteSquarecolor = '#1dbf9f'
-var blackSquarecolor = '#1dbf9f'
+var whiteSquarecolor = '#8d8ce6'
+var blackSquarecolor = '#8d8ce6'
 var checkSquarecolor = '#b30727'
 function removecolorSquares () {
   $('#myBoard .square-55d63').css('background', '')
