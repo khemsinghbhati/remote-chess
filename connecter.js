@@ -11,7 +11,7 @@ let him;
 let myCol='white';
 var lastSquareClicked;
 var lastSquareHovered;
-
+var drawNotificationActive = false;
 //let toSend=false;
 peer.on('open', function(id) {
     //alert("hello")
@@ -52,8 +52,9 @@ function gameRoomLaunch(){
   var oppID=document.getElementById("oppID");
   oppID.append(him);
   var resignButtonHtml = "<button id='resignButton' onclick='resign()'> Resign🏳️ </button>";
-  var drawButtonHtml = "<button id='drawButton'> Draw🤝 </button>";
-  cont.innerHTML += resignButtonHtml + drawButtonHtml+ "<div id='msgContainerDiv'><p style = 'color: yellow; font-size: 200% '> Chat here  </p> <input type='text' id='msg'>  <button id='sendButton'onclick='sendMsg()'> send </button> <div id='msgBoxContainer'><p id='msgBox'> </p> </div> </div>";
+  var drawButtonHtml   = "<button id='drawButton' onclick='drawOffer()'> Draw🤝 </button>";
+  var acceptDrawButtonHtml = "<button id='acceptDrawButton' onclick='acceptDraw()'> Accept Draw </button>";
+  cont.innerHTML += resignButtonHtml + drawButtonHtml + acceptDrawButtonHtml +"<div id='msgContainerDiv'><p style = 'color: yellow; font-size: 200% '> Chat here  </p> <input type='text' id='msg'>  <button id='sendButton'onclick='sendMsg()'> send </button> <div id='msgBoxContainer'><p id='msgBox'> </p> </div> </div>";
   launchBoard();
   document.getElementById("msg").addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
@@ -61,6 +62,21 @@ function gameRoomLaunch(){
       document.getElementById("sendButton").click();
     }
   });
+}
+function drawOffer(){
+  addMsg("You: draw Offered");
+  Conn.send('d');
+}
+function destroyDrawBox(){
+  document.getElementById("acceptDrawButton").style.visibility = "hidden";
+}
+function ActivateDrawBox(){
+  document.getElementById("acceptDrawButton").style.visibility = "visible"; 
+}
+function acceptDraw(){
+   addMsg("You : draw Accepted")
+   Game_end('d');
+   Conn.send('a');
 }
 function resign(){
   //alert();
@@ -146,6 +162,7 @@ if (move === null) {
   return 'snapback';
 }
 // send move if legal
+destroyDrawBox();
 let moveS=source+target;
 Conn.send('m'+ moveS + getPromotion());
 playMoveSound();
@@ -174,6 +191,9 @@ function onMouseoverSquare (square, piece) {
   lastSquareHovered=square;
 }
 function squareClicked(){
+ var pc = game.get(lastSquareClicked);
+ 
+ if(pc.color != Board.orientation().charAt(0) ) return ;
  let snapped = makeMove(lastSquareClicked,lastSquareHovered);
  lastSquareClicked=lastSquareHovered;
  //update board
@@ -223,6 +243,15 @@ function handleRec(){
     data = data.slice(1); 
     addMsg("Opponent : " + data); 
     playChatMsgSound();
+   }
+   else if(data.charAt(0) == 'a'){
+    addMsg("Opponent : draw Accepted")
+    Game_end('d');
+   }
+   else if(data.charAt(0) == 'd'){
+     addMsg("Opponent: draw Offer"); 
+     playChatMsgSound();
+     ActivateDrawBox();
    }
    else if(data.charAt(0) == 'r'){
     let winner = myCol;
@@ -353,5 +382,5 @@ var rank = 8 - Math.floor(num / 8);
 
 // messages format
 /* 
-m = move , c= chat , r= resign
+m = move , c = chat , r = resign , d = draw offer , a = accept draw
 */

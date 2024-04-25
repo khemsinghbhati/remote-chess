@@ -24,7 +24,7 @@
     max-height:30vh;
     overflow-y: scroll;
     background-color:  lightpink;
-
+    
 }
 #msgBox{
     width: 50vh;
@@ -61,6 +61,14 @@
     background-color: transparent;
     color:green;    
     font-size:3vh;
+}
+#acceptDrawButton{
+    margin-top: 1vh;
+    margin-left: 4vh;
+    background-color: transparent;
+    color:green;    
+    font-size:3vh;
+    visibility: hidden;
 }
 .gameoverpara{
     color:white;
