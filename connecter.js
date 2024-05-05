@@ -44,6 +44,7 @@ function startConnect(){
  });
 function rematch(){
   //alternate colors after each game
+  game = new Chess();
   if(myCol == 'white')  myCol =  'black';
   else myCol = 'white';
   gameRoomLaunch();
@@ -253,6 +254,7 @@ function handleRec(){
    }
    else if(data.charAt(0) == 'p'){
     //alternate colors after each game
+    game = new Chess();
     if(myCol == 'white')  myCol =  'black';
     else myCol = 'white';
     gameRoomLaunch();
