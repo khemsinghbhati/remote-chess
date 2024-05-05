@@ -70,6 +70,11 @@
     font-size:3vh;
     visibility: hidden;
 }
+#rematchButton{
+    background-color: transparent;
+ color : yellowgreen;
+ font-size:3vh;
+}
 .gameoverpara{
     color:white;
     font-size: xx-large;

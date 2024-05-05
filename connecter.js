@@ -42,7 +42,14 @@ function startConnect(){
  peer.on('disconnected',() => {
   peer.reconnect();
  });
+function rematch(){
+  //alternate colors after each game
+  if(myCol == 'white')  myCol =  'black';
+  else myCol = 'white';
+  gameRoomLaunch();
+  Conn.send('p');
 
+}
 function gameRoomLaunch(){
   var promotionOptionsHtml = " <div id='pawnPromotionOptions'> Pawn Promtion Choice : <button id='queenButton'  onClick='changePromotionChoiceToQueen()'> ♕ </button> <button id='rookButton' onClick='changePromotionChoiceToRook()'> ♖ </button> <button id='bishopButton'  onClick='changePromotionChoiceToBishop()'> ♗ </button> <button id='knightButton'  onClick='changePromotionChoiceToKnight()'> ♘ </button></div>";
   var cont=document.getElementById("pagee");
@@ -244,6 +251,12 @@ function handleRec(){
     addMsg("Opponent : " + data); 
     playChatMsgSound();
    }
+   else if(data.charAt(0) == 'p'){
+    //alternate colors after each game
+    if(myCol == 'white')  myCol =  'black';
+    else myCol = 'white';
+    gameRoomLaunch();
+   }
    else if(data.charAt(0) == 'a'){
     addMsg("Opponent : draw Accepted")
     Game_end('d');
@@ -312,8 +325,10 @@ function Game_end(winner,byResign=false){
    
     if(byResign == true) 
      cont.innerHTML += "<p class='gameoverpara' >Opponent resigned </p>";
-    cont.innerHTML += msgContainerDiv//"<p style = 'color: yellow; font-size: 200% '> Chat here  </p> <input type='text' id='msg'>  <button id='sendButton'onclick='sendMsg()'> send </button> <div id='msgBoxContainer'><p id='msgBox'> </p> </div>";
-    //press enter to send
+     var rematchButtonHtml = "<button id='rematchButton' onClick = 'rematch()'> Rematch </button>"
+     cont.innerHTML += rematchButtonHtml;
+     cont.innerHTML += msgContainerDiv;
+
     document.getElementById("msg").addEventListener("keypress", function(event) {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -382,5 +397,5 @@ var rank = 8 - Math.floor(num / 8);
 
 // messages format
 /* 
-m = move , c = chat , r = resign , d = draw offer , a = accept draw
+m = move , c = chat , r = resign , d = draw offer , a = accept draw , p = rematch
 */
